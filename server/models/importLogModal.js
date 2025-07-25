@@ -13,6 +13,6 @@ const importLogSchema = new mongoose.Schema({
   ]
 });
 
-const ImportLog = mongoose.model("importLog", importLogSchema);
+const ImportLog = mongoose.model("import_log", importLogSchema);
 
 module.exports = { ImportLog };

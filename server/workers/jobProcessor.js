@@ -2,8 +2,11 @@ const { jobQueue } = require("../config/queue");
 const { Job } = require("../models/jobModel");
 const { ImportLog } = require("../models/importLogModal");
 
+console.log("job processor.js running --------------------------");
 jobQueue.process(async (job, done) => {
   const { jobData, importLogId } = job.data;
+
+  console.log("currentJob", jobData, importLogId);
 
   try {
     const existing = await Job.findOne({ jobId: jobData.jobId });
@@ -24,12 +27,21 @@ jobQueue.process(async (job, done) => {
       return done(null, "new");
     }
   } catch (err) {
+    console.log("error from the jobProcessor", err)
     await ImportLog.findByIdAndUpdate(importLogId, {
       $push: {
-        failedJobs: { jobId: jobData.jobId, error: err.message }
+        failedJobs: {
+          jobId:
+            typeof jobData.jobId === "object" ? jobData.jobId._ : jobData.jobId,
+          error: err.message
+        }
       }
     });
-    global.io?.emit("job-failed", { jobId: jobData.jobId, error: err.message });
+    global.io?.emit("job-failed", {
+      jobId:
+        typeof jobData.jobId === "object" ? jobData.jobId._ : jobData.jobId,
+      error: err.message
+    });
     return done(new Error(err.message));
   }
 });

@@ -1,15 +1,26 @@
 const axios = require("axios");
-const xml2js = require("xml2js");
+const { parseStringPromise } = require("xml2js");
+
+const sanitizeXml = (xml) => {
+  return xml.replace(/(\s\w+)=([ >])/g, '$1=""$2');
+};
 
 const fetchJobs = async (url) => {
-  const { data } = await axios.get(url);
-  const parsed = await xml2js.parseStringPromise(data, {
-    explicitArray: false
-  });
+  try {
+    const xmlRaw = await axios.get(url);
+    const sanitizedXml = sanitizeXml(xmlRaw.data);
+    const parsed = await parseStringPromise(sanitizedXml);
 
-  console.log("parsed", parsed);
-
-  return parsed.rss.channel.item;
+    const items = parsed?.rss?.channel?.[0]?.item || [];
+    console.log(
+      `Fetched ${items.length} jobs at ${new Date().toLocaleString()}`,
+      items[0]
+    );
+    return items;
+  } catch (err) {
+    console.error("Error fetching jobs:", err.message);
+    return [];
+  }
 };
 
 module.exports = { fetchJobs };

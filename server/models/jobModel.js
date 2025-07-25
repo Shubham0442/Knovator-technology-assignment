@@ -5,7 +5,6 @@ const jobSchema = mongoose.Schema({
   title: { type: String },
   company: { type: String },
   description: { type: String },
-  url: { type: String },
   createdAt: { type: Date }
 });
 

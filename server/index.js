@@ -6,6 +6,8 @@ const http = require("http");
 const socketIO = require("socket.io");
 const cron = require("node-cron");
 const { runImportJob } = require("./services/runImports");
+const { jobsController } = require("./controllers/jobsController");
+const { ImportLog } = require("./models/importLogModal");
 require("./workers/jobProcessor");
 
 const app = express();
@@ -21,7 +23,7 @@ const io = socketIO(server, {
   }
 });
 
-cron.schedule("0 * * * *", async () => {
+cron.schedule("*/5 * * * *", async () => {
   console.log("Running job import cron...");
   io.emit("import-started", { message: "Import started!" });
   await runImportJob();
@@ -29,7 +31,22 @@ cron.schedule("0 * * * *", async () => {
 
 global.io = io;
 
+io.on("connection", (socket) => {
+  console.log(`client connected: ${socket.id}`);
+
+  socket.on("get_import_logs", async () => {
+    const allImportLogs = await ImportLog.find({}).sort({ importDateTime: -1 });
+    console.log("allImportLogs", allImportLogs);
+    socket.emit("import_logs_response", allImportLogs);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("client disconnected", socket.id);
+  });
+});
+
 app.get("/", (req, res) => res.send("Job Importer API is running"));
+app.use("/", jobsController);
 
 const PORT = process.env.PORT || 5050;
 
