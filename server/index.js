@@ -23,7 +23,7 @@ const io = socketIO(server, {
   }
 });
 
-cron.schedule("*/5 * * * *", async () => {
+cron.schedule("0 * * * *", async () => {
   console.log("Running job import cron...");
   io.emit("import-started", { message: "Import started!" });
   await runImportJob();
