@@ -22,7 +22,7 @@ const Home = () => {
     });
 
     return () => {
-      socket.off("import_logs_response");
+      socket.off("disconnect");
       clearInterval(timerId?.current);
       timerId.current = null;
     };
