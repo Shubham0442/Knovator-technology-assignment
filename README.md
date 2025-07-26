@@ -34,7 +34,7 @@ npm install
 
 ```bash
 PORT=5050
-REDIS_PORT=6080
+REDIS_PORT=6380
 REDIS_HOST=127.0.0.1
 MONGODB_URL=MongoDB Atlus URL String
 ```
@@ -42,7 +42,7 @@ MONGODB_URL=MongoDB Atlus URL String
 ### 4. Start Redis Server (Windows)
 
 ```bash
-redis-server --port 6080
+redis-server --port 6380
 ```
 
 ### 5. Start Server
